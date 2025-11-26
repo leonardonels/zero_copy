@@ -105,7 +105,7 @@ Build the workspace with Fast DDS Statistics enabled:
 
 ```bash
 cd ~/ros2_humble/
-colcon build --symlink-install --parallel-workers 4 --cmake-args -DFASTDDS_STATISTICS=ON
+colcon build --symlink-install --cmake-args -DFASTDDS_STATISTICS=ON
 ```
 
 Source the environment:
