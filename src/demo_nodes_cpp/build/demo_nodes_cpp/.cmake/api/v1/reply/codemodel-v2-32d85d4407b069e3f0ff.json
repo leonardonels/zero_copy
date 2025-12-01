@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-2ab0bbcc1ddd693c00c4.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "demo_nodes_cpp",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "demo_nodes_cpp_component::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-demo_nodes_cpp_component-57a01f048ad6ded5a22b.json",
+					"name" : "demo_nodes_cpp_component",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "demo_nodes_cpp_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-demo_nodes_cpp_uninstall-2e27fef167a884286811.json",
+					"name" : "demo_nodes_cpp_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "talker_loaned_message_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-talker_loaned_message_node-1cd4e38b9a553726d7f7.json",
+					"name" : "talker_loaned_message_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-a3b7ce22c5e916385c39.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/leo/ros2_ws/src/demo_nodes_cpp/build/demo_nodes_cpp",
+		"source" : "/home/leo/ros2_ws/src/demo_nodes_cpp"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
