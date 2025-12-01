@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(demo_nodes_cpp)
+project(loaned_message_demo)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -16,23 +16,37 @@ find_package(rclcpp_components REQUIRED)
 
 include_directories(include)
 
-add_library(demo_nodes_cpp SHARED
+add_library(loaned_message_demo SHARED
   src/talker_loaned_message.cpp
 )
 
-ament_target_dependencies(demo_nodes_cpp
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+ament_target_dependencies(loaned_message_demo
   rclcpp
   std_msgs
   rclcpp_components
 )
 
 add_executable(talker_loaned_message_node src/talker_loaned_message_node.cpp)
-target_link_libraries(talker_loaned_message_node demo_nodes_cpp)
+target_link_libraries(talker_loaned_message_node loaned_message_demo)
 
 ament_target_dependencies(talker_loaned_message_node
   rclcpp
   std_msgs
   rclcpp_components
+)
+
+install(TARGETS loaned_message_demo
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(TARGETS talker_loaned_message_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
