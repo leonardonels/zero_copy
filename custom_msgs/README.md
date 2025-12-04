@@ -27,3 +27,4 @@ int8[2764800] data
 - [rclcpp LoanedMessage Documentation](https://docs.ros.org/en/humble/p/rclcpp/generated/classrclcpp_1_1LoanedMessage.html)
 - [Writing a Simple Publisher and Subscriber (C++)](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Cpp-Publisher-And-Subscriber.html)
 - [sensor_msgs/PointCloud2 Documentation](https://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/PointCloud2.html)
+- [Demo zero-copy with very simple nodes](https://github.com/MatteGombia/DemoZeroCopyRos2.git)
