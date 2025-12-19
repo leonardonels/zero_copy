@@ -8,7 +8,7 @@
                     <kind>SYNCHRONOUS</kind>
                 </publishMode>
                 <data_sharing>
-                    <kind>AUTOMATIC</kind>
+                    <kind>OFF</kind>
                 </data_sharing>
             </qos>
             <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
@@ -18,64 +18,19 @@
         <subscriber profile_name="default subscriber profile" is_default_profile="true">
             <qos>
                 <data_sharing>
-                    <kind>AUTOMATIC</kind>
+                    <kind>OFF</kind>
                 </data_sharing>
             </qos>
             <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
         </subscriber>
 
-        <!-- Publisher profile for topic helloworld -->
-        <publisher profile_name="helloworld">
+        <!-- Publisher profile for topic chatter_pod -->
+        <publisher profile_name="/chatter_pod">
             <qos>
-                <publishMode>
-                    <kind>SYNCHRONOUS</kind>
-                </publishMode>
                 <data_sharing>
-                    <kind>AUTOMATIC</kind>
+                    <kind>ON</kind>
                 </data_sharing>
             </qos>
         </publisher>
-
-        <!-- Request subscriber profile for services -->
-        <subscriber profile_name="service">
-            <qos>
-                <data_sharing>
-                    <kind>AUTOMATIC</kind>
-                </data_sharing>
-            </qos>
-            <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
-        </subscriber>
-
-        <!-- Request publisher profile for clients -->
-        <publisher profile_name="client">
-            <qos>
-                <publishMode>
-                    <kind>ASYNCHRONOUS</kind>
-                </publishMode>
-                <data_sharing>
-                    <kind>AUTOMATIC</kind>
-                </data_sharing>
-            </qos>
-        </publisher>
-
-        <!-- Request subscriber profile for server of service "add_two_ints" -->
-        <subscriber profile_name="rq/add_two_intsRequest">
-            <qos>
-                <data_sharing>
-                    <kind>AUTOMATIC</kind>
-                </data_sharing>
-            </qos>
-            <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
-        </subscriber>
-
-        <!-- Reply subscriber profile for client of service "add_two_ints" -->
-        <subscriber profile_name="rr/add_two_intsReply">
-            <qos>
-                <data_sharing>
-                    <kind>AUTOMATIC</kind>
-                </data_sharing>
-            </qos>
-            <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
-        </subscriber>
     </profiles>
 </dds>

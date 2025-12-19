@@ -18,7 +18,6 @@ public:
 private:
   size_t count_ = 1;
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pod_pub_;
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr non_pod_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
 
