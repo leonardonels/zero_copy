@@ -12,6 +12,7 @@
 
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
+  <depend>custom_msgs</depend>
   <depend>rclcpp_components</depend>
   <depend>rmw</depend>
   <depend>rcutils</depend>

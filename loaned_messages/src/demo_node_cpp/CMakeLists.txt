@@ -12,6 +12,7 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(custom_msgs REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
 include_directories(include)
@@ -27,6 +28,7 @@ install(DIRECTORY launch
 ament_target_dependencies(loaned_message_demo
   rclcpp
   std_msgs
+  custom_msgs
   rclcpp_components
 )
 
@@ -36,6 +38,7 @@ target_link_libraries(talker_loaned_message_node loaned_message_demo)
 ament_target_dependencies(talker_loaned_message_node
   rclcpp
   std_msgs
+  custom_msgs
   rclcpp_components
 )
 

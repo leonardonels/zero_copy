@@ -24,13 +24,29 @@
             <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
         </subscriber>
 
+        <!-- Used for loaned messages demo -->
+        
         <!-- Publisher profile for topic chatter_pod -->
         <publisher profile_name="/chatter_pod">
             <qos>
+                <publishMode>
+                    <kind>SYNCHRONOUS</kind>
+                </publishMode>
                 <data_sharing>
-                    <kind>ON</kind>
+                    <kind>OFF</kind>
                 </data_sharing>
             </qos>
+            <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
         </publisher>
+
+        <!-- Subscriber profile for topic chatter_pod -->
+        <subscriber profile_name="/chatter_pod">
+            <qos>
+                <data_sharing>
+                    <kind>OFF</kind>
+                </data_sharing>
+            </qos>
+            <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
+        </subscriber>
     </profiles>
 </dds>

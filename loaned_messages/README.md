@@ -11,7 +11,7 @@ If you’ve installed ROS 2 from packages, ensure that you have `ros-humble-demo
 To test the loaned messages feature, you can run the following demo node:
 
 ```bash
-ros2 run demo_nodes_cpp talker_loaned_message
+ros2 ros2 run loaned_message_demo talker_loaned_message_node --ros-args -p nodes:=10
 ```
 
 ### Expected Behavior (Without Configuration)
