@@ -2,6 +2,9 @@
 #include <cstdio>
 #include <memory>
 #include <utility>
+#include <vector>
+#include <cstring>
+#include <limits>
 
 #include "demo_nodes_cpp/talker_loaned_message.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -12,6 +15,8 @@
 #include "custom_msgs/msg/loaned_message.hpp"
 
 #include "demo_nodes_cpp/visibility_control.h"
+
+#include "demo_nodes_cpp/sim.hpp"
 
 using namespace std::chrono_literals;
 
@@ -28,67 +33,104 @@ LoanedMessageTalker::LoanedMessageTalker(const rclcpp::NodeOptions & options):No
     rclcpp::QoS qos(rclcpp::KeepLast(1));
 
     if (id_ == 0) {
-        // Father node
-        sub_ = this->create_subscription<custom_msgs::msg::LoanedMessage>(
-            "chatter_pod", qos, std::bind(&LoanedMessageTalker::on_message, this, std::placeholders::_1));
-        RCLCPP_INFO(this->get_logger(), "Father node started (ID: 0), listening on 'chatter_pod'");
+        thread_ = std::thread([this]() {
+            // SIM
+            SIM::Reader reader("/sim_channel", 1024 * 1024 * 100); // 100 MB
+
+            while (rclcpp::ok() && !reader.init()) {
+                RCLCPP_WARN(this->get_logger(), "Waiting for SIM writer...");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+            
+            if (!rclcpp::ok()) return;
+
+            RCLCPP_INFO(this->get_logger(), "SIM reader initialized on /sim_channel");
+            
+            uint64_t count = 0;
+            uint64_t avg_count = 0;
+            double total_latency = 0.0;
+            double min_latency = std::numeric_limits<double>::max();
+            double max_latency = 0.0;
+
+            while (rclcpp::ok()) {
+                size_t size = 0;
+            
+                // Zero-copy read - get direct pointer to shared memory
+                const void* data = reader.readZeroCopy(size);
+            
+                if (data && size >= sizeof(int64_t)) {
+                    int64_t sent_time;
+                    std::memcpy(&sent_time, data, sizeof(int64_t));
+                    
+                    int64_t now_ns = this->now().nanoseconds();;
+                    double latency_ms = (now_ns - sent_time);
+                    
+                    total_latency += latency_ms;
+                    if (latency_ms < min_latency) min_latency = latency_ms;
+                    if (latency_ms > max_latency) max_latency = latency_ms;
+
+                    count++;
+                    avg_count++;
+                    if (count % 100 == 0) {
+                        RCLCPP_INFO(this->get_logger(), 
+                            "Stats (last 100): Avg: %.5f ms, Min: %.5f ms, Max: %.5f ms",
+                            (total_latency / avg_count) / 1000000.0, min_latency / 1000000.0, max_latency / 1000000.0);
+                        
+                        // Reset stats
+                        avg_count = 0;
+                        total_latency = 0.0;
+                        min_latency = std::numeric_limits<double>::max();
+                        max_latency = 0.0;
+                    }else{
+                        RCLCPP_INFO(this->get_logger(), "Frame %lu latency: %.5f ms", count, latency_ms / 1000000.0);
+                    }
+                }
+
+                // Check if writer is still alive
+                if (!reader.isWriterAlive(2000)) {
+                    RCLCPP_WARN(this->get_logger(), "Writer disconnected.");
+                    break;
+                }
+
+                std::this_thread::yield();
+            }
+        });
     } else {
-        // Child node
-        auto publish_message =
-          [this]() -> void
-          {
-            auto pod_loaned_msg = pod_pub_->borrow_loaned_message();
+        thread_ = std::thread([this]() {
+            //SIM
+            SIM::Writer writer("/sim_channel", 1024 * 1024 * 100); // 100 MB
+            if (!writer.init()) {
+                RCLCPP_ERROR(this->get_logger(), "Failed to initialize SIM writer");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "SIM writer initialized on /sim_channel");
             
-            // Data is fixed size [2764800]
-            pod_loaned_msg.get().data[0] = static_cast<uint8_t>(id_);
-            
-            // Populate timestamp
-            pod_loaned_msg.get().timestamp = this->now().nanoseconds();
-            
-            // RCLCPP_INFO(this->get_logger(), "Child %d Publishing message", id_);
-            pod_pub_->publish(std::move(pod_loaned_msg));
-          };
+            uint64_t frame_number = 0;
+            std::vector<char> buffer(5529600); // ~5.5 MB buffer
 
-        // Create a publisher with a custom Quality of Service profile.
-        pod_pub_ = this->create_publisher<custom_msgs::msg::LoanedMessage>("chatter_pod", qos);
+            while (rclcpp::ok()) {
+                int64_t now_ns = this->now().nanoseconds();
+                
+                // Copy timestamp to beginning of buffer
+                std::memcpy(buffer.data(), &now_ns, sizeof(int64_t));
+                
+                // Add frame info text after timestamp
+                snprintf(buffer.data() + sizeof(int64_t), buffer.size() - sizeof(int64_t), 
+                        " - Frame %lu", frame_number);
 
-        // Use a timer to schedule periodic message publishing.
-        timer_ = this->create_wall_timer(0.1s, publish_message);
-        RCLCPP_INFO(this->get_logger(), "Child node %d started, publishing to 'chatter_pod'", id_);
+                // Write data (timestamp + string + null terminator)
+                size_t payload_len = strlen(buffer.data() + sizeof(int64_t));
+                writer.write(buffer.data(), sizeof(int64_t) + payload_len + 1);
+                
+                // printf("Published frame %lu\n", frame_number);
+                ++frame_number;
+                
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));  // ~100 Hz
+            }
+
+            writer.destroy();
+        });
     }
-}
-
-void LoanedMessageTalker::on_message(const custom_msgs::msg::LoanedMessage::SharedPtr msg)
-{
-    double current_time = this->now().nanoseconds();
-    double sent_time = msg->timestamp;
-    double latency = current_time - sent_time;
-    
-    total_latency_ += latency;
-    received_count_++;
-
-    if (received_count_ % 100 == 0) {
-        double average_latency = total_latency_ / received_count_;
-        RCLCPP_INFO(this->get_logger(), 
-            "Received %zu messages. Latest Latency: %f ms. Average Latency: %f ms", 
-            received_count_, latency / 1000000, average_latency / 1000000);
-        min_latency_ = 0.0;
-        max_latency_ = 0.0;
-    }
-
-    if (min_latency_ == 0.0 && max_latency_ == 0.0) {
-        min_latency_ = latency;
-        max_latency_ = latency;
-    } else {
-        min_latency_ = std::min(min_latency_, latency);
-        max_latency_ = std::max(max_latency_, latency);
-    }
-    RCLCPP_INFO(this->get_logger(),
-        "Message from ID: %d | Latency: %f ms | Min Latency: %f ms | Max Latency: %f ms",
-        static_cast<int>(msg->data[0]),
-        latency / 1000000,
-        min_latency_ / 1000000,
-        max_latency_ / 1000000);
 }
 
 }  // namespace demo_nodes_cpp

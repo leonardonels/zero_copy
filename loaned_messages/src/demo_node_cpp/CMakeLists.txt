@@ -17,9 +17,24 @@ find_package(rclcpp_components REQUIRED)
 
 include_directories(include)
 
+# SIM Library
+add_library(sim SHARED src/sim.cpp)
+target_include_directories(sim PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_link_libraries(sim rt pthread)
+
 add_library(loaned_message_demo SHARED
   src/talker_loaned_message.cpp
 )
+target_link_libraries(loaned_message_demo sim)
+
+# Installation
+include(GNUInstallDirs)
+install(TARGETS sim
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}

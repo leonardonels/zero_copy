@@ -6,6 +6,7 @@
 #include "std_msgs/msg/string.hpp"
 #include "custom_msgs/msg/loaned_message.hpp"
 #include "demo_nodes_cpp/visibility_control.h"
+#include <thread>
 
 namespace demo_nodes_cpp
 {
@@ -15,9 +16,13 @@ class LoanedMessageTalker : public rclcpp::Node
 public:
   DEMO_NODES_CPP_PUBLIC
   explicit LoanedMessageTalker(const rclcpp::NodeOptions & options);
+  ~LoanedMessageTalker() {
+    if (thread_.joinable()) {
+      thread_.join();
+    }
+  }
 
 private:
-  void on_message(const custom_msgs::msg::LoanedMessage::SharedPtr msg);
   void mean_latency_writer();
 
   int id_ = 0;
@@ -30,6 +35,7 @@ private:
   rclcpp::Publisher<custom_msgs::msg::LoanedMessage>::SharedPtr pod_pub_;
   rclcpp::Subscription<custom_msgs::msg::LoanedMessage>::SharedPtr sub_;
   rclcpp::TimerBase::SharedPtr timer_;
+  std::thread thread_;
 };
 
 }  // namespace demo_nodes_cpp
